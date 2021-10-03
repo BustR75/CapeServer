@@ -34,22 +34,15 @@ namespace CapeGitRepo
 
                 try
                 {
-
-                }
-                catch
-                {
-
-                }
-                if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, re.Substring(1))))
-                {
-                    byte[] capedata = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, re.Substring(1)));
+                    
+                    byte[] capedata = Resender.DownloadData(string.Format("https://raw.githubusercontent.com/{1}/master{0}", re,Repo));
                     if (re.ToLower().EndsWith(".png")) resp.ContentType = "image/png";
                     else if (req.AcceptTypes.Length > 0) resp.ContentType = req.AcceptTypes[0];
                     resp.ContentLength64 = capedata.LongLength;
                     await resp.OutputStream.WriteAsync(capedata, 0, capedata.Length);
                     resp.Close();
                 }
-                else
+                catch
                 {
                     byte[] data = null;
                     try
@@ -72,8 +65,10 @@ namespace CapeGitRepo
                         resp.Close();
                     }
                 }
+                
             }
         }
+        static string Repo = "BustR75/CapeServer";
         static void Main(string[] args)
         {
             using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
@@ -86,17 +81,7 @@ namespace CapeGitRepo
                     Process.GetCurrentProcess().Close();
                 }
             }
-
-            Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "capes"));
-            if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Settings.json")))
-            {
-                settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Settings>(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Settings.json")));
-            }
-            else
-            {
-                settings = new Settings();
-                File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Settings.json"), Newtonsoft.Json.JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented));
-            }
+            if (args.Length >= 1) Repo = args[0];
             listener.Prefixes.Add("http://s.optifine.net/");
             listener.Prefixes.Add("https://s.optifine.net/");
             listener.Start();

@@ -36,7 +36,6 @@ namespace CapeServer
                 Console.WriteLine(req.HttpMethod);
                 Console.WriteLine(req.UserHostName);
                 Console.WriteLine(req.UserAgent);
-                //string re = req.Url.ToString().Split(new string[] { "s.optifine.net" }, StringSplitOptions.None)[1];
                 string re = req.Url.PathAndQuery;
                 Console.WriteLine(re);
                 Console.WriteLine();
@@ -46,9 +45,6 @@ namespace CapeServer
                     re = settings.RedirectList[re];
                     Console.WriteLine("Redirect To " + re);
                 }
-
-
-                //req.Url.PathAndQuery
                 if (string.IsNullOrEmpty(req.Url.LocalPath) || req.Url.LocalPath == "/")
                 {
                     byte[] bytes = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "index.html"));
@@ -58,6 +54,7 @@ namespace CapeServer
                     await resp.OutputStream.WriteAsync(bytes, 0, bytes.Length);
                     resp.Close();
                 }
+                // TO disable Comment Out this block
                 else if (re.StartsWith("/Upload") && req.HttpMethod == "POST")
                 {
 
@@ -93,8 +90,6 @@ namespace CapeServer
                                 count = req.InputStream.Read(buf, 0, 1024);
                                 ms.Write(buf, 0, count);
                             } while (req.InputStream.CanRead && count > 0);
-                            //bytes = ms.ToArray();
-
                             File.WriteAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "capes", user + ".png"), ms.ToArray());
                         }
                         bytes = Encoding.UTF8.GetBytes(string.Format("Success"));
@@ -107,17 +102,7 @@ namespace CapeServer
                 }
                 else
                 {
-                    //Path.Combine(AppDomain.CurrentDomain.BaseDirectory, re);
-                    Console.WriteLine(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, req.Url.LocalPath.Substring(1)));
-                    /*if (re.StartsWith("/capes") && File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, re)))
-                    {
-                        byte[] capedata = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, re));
-                        resp.ContentType = "image/png";
-                        resp.ContentLength64 = capedata.LongLength;
-                        await resp.OutputStream.WriteAsync(capedata, 0, capedata.Length);
-                        resp.Close();
-                    }
-                    else */if(File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, re.Substring(1))))
+                    if(File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, re.Substring(1))))
                     {
                         byte[] capedata = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, re.Substring(1)));
                         if (re.ToLower().EndsWith(".png")) resp.ContentType = "image/png";
